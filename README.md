@@ -47,7 +47,7 @@ def sign_for_device(device):
 
 ##### 2. 在 [Link Develop](http://linkdevelop.aliyun.com) 平台创建具体的产品和设备，并在 hass 的配置文件中添加配置；
 
-同样的，在 [Link Develop](http://linkdevelop.aliyun.com) 中创建一个 MotionSensor 产品和测试设备，添加好产品功能定义，注意此处需要功能定义的`标识符`和`hass`中的`binary_sensor.motion_sensor*`的属性名保持一致，如：`state`, `value`, `friendly_name`,`battery_level`等。
+同样的，在 [Link Develop](http://linkdevelop.aliyun.com) 中创建一个 MotionSensor 产品和测试设备，添加好产品功能定义，注意此处需要功能定义的`标识符`和`hass`中的`binary_sensor.motion_sensor*`的属性名保持一致，如：`state`, `value`, `friendly_name`,`battery_level`等。当然你也可以创建其他类型的设备，如温湿度传感器。
 
 完成后我们开始`aliyun_iot`这个 Component 的配置，打开`hass`的`configuration.yaml`，加入类似这样的配置：
 
@@ -72,7 +72,7 @@ aliyun_iot:
 
 `component_config_glob`是用来设定上传`hass`中该类型设备的哪些属性；
 
-`iot_devices`是在 [Link Develop](http://linkdevelop.aliyun.com) 平台上创建的实际设备；
+`iot_devices`是在 [Link Develop](http://linkdevelop.aliyun.com) 平台上创建的实际设备，可以添加多个设备；
 
 
 
