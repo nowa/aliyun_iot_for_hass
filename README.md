@@ -1,8 +1,8 @@
 #### A HA Component fot Aliyun IoT Link Develop Platform
 
-##### 1. 在 Link Develop 平台创建网关产品和设备，并接入；
+##### 1. 在 [Link Develop](http://linkdevelop.aliyun.com) 平台创建网关产品和设备，并接入；
 
-如何在 Link Develop 平台创建网关产品和设备此处略去，直接讲创建后在 hass 里的集成。
+如何在 [Link Develop](http://linkdevelop.aliyun.com) 平台创建网关产品和设备此处略去，直接讲创建后在 hass 里的集成。
 
 首先，该 Component 依赖 `mqtt component`，需要先完成`mqtt component`的配置：
 
@@ -16,7 +16,7 @@ mqtt:
   keepalive: 60
 ```
 
-其中，`{GATEWAY.product_key}`对应于 Link Develop 平台上创建的网关型产品的`productKey`，`{GATEWAY.device_name}`是网关设备的`deviceName`，`{GATEWAT.sign}`的生成方法如下：
+其中，`{GATEWAY.product_key}`对应于 [Link Develop](http://linkdevelop.aliyun.com) 平台上创建的网关型产品的`productKey`，`{GATEWAY.device_name}`是网关设备的`deviceName`，`{GATEWAT.sign}`的生成方法如下：
 
 ```python
 def make_hmacsha1_hexdigest(key, data):
@@ -45,9 +45,9 @@ def sign_for_device(device):
 
 
 
-##### 2. 在 Link Develop 平台创建具体的产品和设备，并在 hass 的配置文件中添加配置；
+##### 2. 在 [Link Develop](http://linkdevelop.aliyun.com) 平台创建具体的产品和设备，并在 hass 的配置文件中添加配置；
 
-同样的，在 Link Develop 中创建一个 MotionSensor 产品和测试设备，添加好产品功能定义，注意此处需要功能定义的`标识符`和`hass`中的`binary_sensor.motion_sensor*`的属性名保持一致，如：`state`, `value`, `friendly_name`,`battery_level`等。
+同样的，在 [Link Develop](http://linkdevelop.aliyun.com) 中创建一个 MotionSensor 产品和测试设备，添加好产品功能定义，注意此处需要功能定义的`标识符`和`hass`中的`binary_sensor.motion_sensor*`的属性名保持一致，如：`state`, `value`, `friendly_name`,`battery_level`等。
 
 完成后我们开始`aliyun_iot`这个 Component 的配置，打开`hass`的`configuration.yaml`，加入类似这样的配置：
 
@@ -72,7 +72,7 @@ aliyun_iot:
 
 `component_config_glob`是用来设定上传`hass`中该类型设备的哪些属性；
 
-`iot_devices`是在 Link Develop 平台上创建的实际设备；
+`iot_devices`是在 [Link Develop](http://linkdevelop.aliyun.com) 平台上创建的实际设备；
 
 
 
