@@ -8,6 +8,7 @@ import logging
 import hashlib
 import hmac
 import json
+import time
 import voluptuous as vol
 from random import randint
 
@@ -106,9 +107,9 @@ def login_iot_device(gateway, device, mqtt, hass):
     """Add device topo to gateway and login"""
     if not gateway or not device:
         return
-    
+
     sign_data = sign_for_device(device)
-    
+
     # Prepare payload for device topo
     topo_payload = {
         'id': make_random_int_str(),
@@ -125,8 +126,11 @@ def login_iot_device(gateway, device, mqtt, hass):
     }
     # add topo to gateway
     mqtt.publish(hass, IOT_TOPICS['thing_topo_add'].format(gateway[CONF_KEY], gateway[CONF_NAME]), json.dumps(topo_payload))
-    _LOGGER.info("Topo added for device: %s", device[CONF_DEVICE_NAME])
+    # _LOGGER.info("Topo added for device: %s", device[CONF_DEVICE_NAME])
     
+    # 当前 topo reply 中不会有设备信息返回，暂且用 sleep
+    time.sleep(0.3)
+
     # Prepare payload for device property post
     login_payload = {
         'id': make_random_int_str(),
@@ -177,7 +181,6 @@ def setup(hass, config):
             entities_mapping[entity_id][CONF_PRODUCT_KEY] = iot_device.get(CONF_PRODUCT_KEY)
             entities_mapping[entity_id][CONF_DEVICE_NAME] = iot_device.get(CONF_DEVICE_NAME)
             entities_mapping[entity_id][CONF_DEVICE_SECRET] = iot_device.get(CONF_DEVICE_SECRET)
-            login_iot_device(gateway, entities_mapping[entity_id], mqtt, hass)
     
     _LOGGER.info("whitelist for entities: %s", whitelist_e)
     
@@ -185,6 +188,20 @@ def setup(hass, config):
         conf[CONF_COMPONENT_CONFIG],
         conf[CONF_COMPONENT_CONFIG_DOMAIN],
         conf[CONF_COMPONENT_CONFIG_GLOB])
+    
+    def topo_added(topic, payload, qos):
+        """Topo added callback"""
+        _LOGGER.info("Got birth/will message reply.")
+        try:
+            payload_json = json.loads(payload)
+            if payload_json['code'] == 6207:
+                for entity_id in entities_mapping:
+                    if entities_mapping[entity_id]:
+                        login_iot_device(gateway, entities_mapping[entity_id], mqtt, hass)
+            elif payload_json['code'] == 200:
+                _LOGGER.info("Device topo added, request id: %s, topic: %s", payload_json['id'], topic)
+        except Exception as e:
+            _LOGGER.warning("Process birth/will message reply failed.")
     
     def aliyun_iot_event_listener(event):
         """处理所有符合配置条件的 state changed 事件，转发到 aliyun iot"""
@@ -243,6 +260,14 @@ def setup(hass, config):
         # _LOGGER.info("device sign: %s", sign_data[1])
         
         mqtt.publish(hass, IOT_TOPICS['property_post'].format(mapping_device[CONF_PRODUCT_KEY], mapping_device[CONF_DEVICE_NAME]), json.dumps(payload_json))
+    
+    # Subscribe topo add reply topic
+    mqtt.subscribe(hass, IOT_TOPICS['thing_topo_add_reply'].format(gateway[CONF_KEY], gateway[CONF_NAME]), topo_added)
+    
+    # login devices
+    for entity_id in entities_mapping:
+        if entities_mapping[entity_id]:
+            login_iot_device(gateway, entities_mapping[entity_id], mqtt, hass)
     
     hass.bus.listen(EVENT_STATE_CHANGED, aliyun_iot_event_listener)
 
